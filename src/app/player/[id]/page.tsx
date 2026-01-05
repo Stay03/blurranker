@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LoadingPage } from '@/components/ui/Loading';
 import { BackButton } from '@/components/ui/BackButton';
+import { OnlineIndicator } from '@/components/ui/OnlineIndicator';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -145,16 +146,21 @@ export default function PlayerProfilePage({ params }: PageProps) {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
-                  stats.netProfit > 0
-                    ? 'bg-green-500/10 text-green-600'
-                    : stats.netProfit < 0
-                    ? 'bg-red-500/10 text-red-600'
-                    : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                {stats.playerName.charAt(0).toUpperCase()}
+              <div className="relative">
+                <div
+                  className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
+                    stats.netProfit > 0
+                      ? 'bg-green-500/10 text-green-600'
+                      : stats.netProfit < 0
+                      ? 'bg-red-500/10 text-red-600'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {stats.playerName.charAt(0).toUpperCase()}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5">
+                  <OnlineIndicator lastSeen={stats.lastSeen} size="lg" />
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 {isEditing ? (

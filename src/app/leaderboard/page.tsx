@@ -9,6 +9,7 @@ import { Container } from '@/components/ui/Container';
 import { Card, CardContent } from '@/components/ui/card';
 import { LoadingPage } from '@/components/ui/Loading';
 import { BackButton } from '@/components/ui/BackButton';
+import { OnlineIndicator } from '@/components/ui/OnlineIndicator';
 import {
   Table,
   TableBody,
@@ -111,12 +112,15 @@ export default function LeaderboardPage() {
                             )}
                           </TableCell>
                           <TableCell>
-                            <Link
-                              href={`/player/${entry.playerId}`}
-                              className="font-medium text-foreground hover:text-primary hover:underline transition-colors"
-                            >
-                              {entry.playerName}
-                            </Link>
+                            <div className="flex items-center gap-2">
+                              <OnlineIndicator lastSeen={entry.lastSeen} size="sm" />
+                              <Link
+                                href={`/player/${entry.playerId}`}
+                                className="font-medium text-foreground hover:text-primary hover:underline transition-colors"
+                              >
+                                {entry.playerName}
+                              </Link>
+                            </div>
                           </TableCell>
                           <TableCell className="text-center text-muted-foreground hidden sm:table-cell">
                             {entry.sessionsPlayed}

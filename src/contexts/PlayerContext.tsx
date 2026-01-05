@@ -76,6 +76,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     loadPlayer();
   }, [loadPlayer]);
 
+  // Heartbeat: update last_seen every 30 seconds to track online status
+  useEffect(() => {
+    if (!player) return;
+
+    const updateLastSeen = async () => {
+      await supabase
+        .from('players')
+        .update({ last_seen: new Date().toISOString() })
+        .eq('id', player.id);
+    };
+
+    const interval = setInterval(updateLastSeen, 30000); // 30 seconds
+    return () => clearInterval(interval);
+  }, [player, supabase]);
+
   const updateName = useCallback(
     async (name: string): Promise<{ success: boolean; error?: string }> => {
       if (!player) return { success: false, error: 'No player found' };

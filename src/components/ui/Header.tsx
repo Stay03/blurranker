@@ -5,6 +5,7 @@ import { usePlayer } from '@/contexts/PlayerContext';
 import { Container } from './Container';
 import { ThemeToggle } from './ThemeToggle';
 import { Skeleton } from './skeleton';
+import { OnlineIndicator } from './OnlineIndicator';
 
 export function Header() {
   const { player, isLoading } = usePlayer();
@@ -42,9 +43,14 @@ export function Header() {
                 href={`/player/${player.id}`}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {player.name.charAt(0).toUpperCase()}
+                <div className="relative">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-medium text-primary">
+                      {player.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5">
+                    <OnlineIndicator lastSeen={player.last_seen} size="sm" />
                   </span>
                 </div>
                 <span className="text-sm font-medium text-foreground hidden sm:inline">

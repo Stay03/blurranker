@@ -2,6 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Player } from './supabase/types';
 
+export function isPlayerOnline(lastSeen: string, thresholdMinutes = 1): boolean {
+  const lastSeenDate = new Date(lastSeen);
+  const now = new Date();
+  const diffMs = now.getTime() - lastSeenDate.getTime();
+  const diffMinutes = diffMs / (1000 * 60);
+  return diffMinutes <= thresholdMinutes;
+}
+
 const DEVICE_ID_KEY = 'blurranker_device_id';
 
 const adjectives = [

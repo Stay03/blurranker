@@ -26,6 +26,7 @@ export type SessionLeaderboardEntry = {
 
 export type AllTimeLeaderboardEntry = PlayerStats & {
   sessionsPlayed: number;
+  lastSeen: string;
 };
 
 /**
@@ -190,6 +191,7 @@ export function calculateAllTimeStats(
     return {
       ...stats,
       sessionsPlayed: sessionsPerPlayer.get(player.id) || 0,
+      lastSeen: player.last_seen,
     };
   });
 

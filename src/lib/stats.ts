@@ -9,6 +9,7 @@ import {
 
 export type PlayerProfileStats = PlayerStats & {
   sessionsPlayed: number;
+  lastSeen: string;
   recentGames: {
     gameId: string;
     sessionName: string;
@@ -208,6 +209,7 @@ export async function getPlayerStats(
   return {
     ...stats,
     sessionsPlayed: sessionPlayers?.length || 0,
+    lastSeen: (player as Player).last_seen,
     recentGames,
   };
 }

@@ -6,6 +6,7 @@ import type { Player } from '@/lib/supabase/types';
 import type { GameWithDetails } from '@/lib/game';
 import { Card, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { OnlineIndicator } from '@/components/ui/OnlineIndicator';
 import { formatCurrency, calculatePlayerBalance } from '@/lib/utils/payments';
 import { useAnimatedList } from '@/lib/hooks/useAnimatedList';
 
@@ -111,16 +112,21 @@ export function SessionStandings({
                     </span>
 
                     {/* Avatar */}
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-medium text-sm transition-colors duration-300 ${
-                        standing.totalBalance > 0
-                          ? 'bg-green-500/10 text-green-600'
-                          : standing.totalBalance < 0
-                          ? 'bg-red-500/10 text-red-600'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {standing.player.name.charAt(0).toUpperCase()}
+                    <div className="relative">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-medium text-sm transition-colors duration-300 ${
+                          standing.totalBalance > 0
+                            ? 'bg-green-500/10 text-green-600'
+                            : standing.totalBalance < 0
+                            ? 'bg-red-500/10 text-red-600'
+                            : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {standing.player.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5">
+                        <OnlineIndicator lastSeen={standing.player.last_seen} size="sm" />
+                      </span>
                     </div>
 
                     {/* Name and badges */}
