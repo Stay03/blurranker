@@ -2,12 +2,14 @@
 
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Pencil, Loader2, Check, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getPlayerStats, type PlayerProfileStats } from '@/lib/stats';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { Container } from '@/components/ui/Container';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { LoadingPage } from '@/components/ui/Loading';
 import { BackButton } from '@/components/ui/BackButton';
 
@@ -19,7 +21,11 @@ export default function PlayerProfilePage({ params }: PageProps) {
   const { id: playerId } = use(params);
   const [stats, setStats] = useState<PlayerProfileStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { player: currentPlayer } = usePlayer();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [editError, setEditError] = useState('');
+  const { player: currentPlayer, updateName } = usePlayer();
   const supabase = createClient();
 
   useEffect(() => {
@@ -58,6 +64,52 @@ export default function PlayerProfilePage({ params }: PageProps) {
   }
 
   const isCurrentPlayer = currentPlayer?.id === playerId;
+
+  const handleStartEdit = () => {
+    setEditName(stats?.playerName || '');
+    setEditError('');
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditError('');
+  };
+
+  const handleSaveName = async () => {
+    const trimmedName = editName.trim();
+
+    if (!trimmedName) {
+      setEditError('Please enter a name');
+      return;
+    }
+
+    if (trimmedName.length < 2) {
+      setEditError('Name must be at least 2 characters');
+      return;
+    }
+
+    if (trimmedName.length > 30) {
+      setEditError('Name must be 30 characters or less');
+      return;
+    }
+
+    setIsSaving(true);
+    setEditError('');
+
+    const result = await updateName(trimmedName);
+
+    if (result.success) {
+      setIsEditing(false);
+      // Refresh stats to show updated name
+      const updatedStats = await getPlayerStats(supabase, playerId);
+      setStats(updatedStats);
+    } else {
+      setEditError(result.error || 'Failed to save name');
+    }
+
+    setIsSaving(false);
+  };
 
   const formatCurrency = (amount: number) => {
     const formatted = new Intl.NumberFormat('en-US', {
@@ -104,15 +156,70 @@ export default function PlayerProfilePage({ params }: PageProps) {
               >
                 {stats.playerName.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {stats.playerName}
-                  </h1>
-                  {isCurrentPlayer && (
-                    <Badge variant="secondary">You</Badge>
-                  )}
-                </div>
+              <div className="flex-1">
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => {
+                          setEditName(e.target.value);
+                          setEditError('');
+                        }}
+                        className="text-xl font-bold bg-background border border-input rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-ring"
+                        maxLength={30}
+                        autoFocus
+                        disabled={isSaving}
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleSaveName}
+                        disabled={isSaving}
+                        className="h-8 w-8"
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 text-green-600" />
+                        )}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                        className="h-8 w-8"
+                      >
+                        <X className="h-4 w-4 text-red-600" />
+                      </Button>
+                    </div>
+                    {editError && (
+                      <p className="text-sm text-red-600">{editError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {stats.playerName}
+                    </h1>
+                    {isCurrentPlayer && (
+                      <>
+                        <Badge variant="secondary">You</Badge>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={handleStartEdit}
+                          className="h-8 w-8"
+                          title="Edit name"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
                 <p className="text-muted-foreground">
                   {stats.sessionsPlayed} session{stats.sessionsPlayed !== 1 ? 's' : ''} played
                 </p>

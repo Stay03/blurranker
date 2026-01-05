@@ -21,7 +21,7 @@ type PlayerContextType = {
   player: Player | null;
   isLoading: boolean;
   isNewUser: boolean;
-  updateName: (name: string) => Promise<boolean>;
+  updateName: (name: string) => Promise<{ success: boolean; error?: string }>;
   refresh: () => Promise<void>;
   completeSetup: () => void;
 };
@@ -77,15 +77,15 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [loadPlayer]);
 
   const updateName = useCallback(
-    async (name: string): Promise<boolean> => {
-      if (!player) return false;
+    async (name: string): Promise<{ success: boolean; error?: string }> => {
+      if (!player) return { success: false, error: 'No player found' };
 
-      const updatedPlayer = await updatePlayerName(supabase, player.id, name);
-      if (updatedPlayer) {
-        setPlayer(updatedPlayer);
-        return true;
+      const result = await updatePlayerName(supabase, player.id, name);
+      if (result.success && result.player) {
+        setPlayer(result.player);
+        return { success: true };
       }
-      return false;
+      return { success: false, error: result.error };
     },
     [player, supabase]
   );

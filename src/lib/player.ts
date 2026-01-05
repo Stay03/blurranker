@@ -86,11 +86,36 @@ export async function getOrCreatePlayer(
   return null;
 }
 
+export async function checkUsernameAvailable(
+  supabase: SupabaseClient,
+  name: string,
+  excludePlayerId?: string
+): Promise<{ available: boolean }> {
+  let query = supabase
+    .from('players')
+    .select('id')
+    .ilike('name', name);
+
+  if (excludePlayerId) {
+    query = query.neq('id', excludePlayerId);
+  }
+
+  const { data } = await query.limit(1);
+  return { available: !data || data.length === 0 };
+}
+
 export async function updatePlayerName(
   supabase: SupabaseClient,
   playerId: string,
   name: string
-): Promise<Player | null> {
+): Promise<{ success: boolean; player?: Player; error?: string }> {
+  // Check if username is available (case-insensitive)
+  const { available } = await checkUsernameAvailable(supabase, name, playerId);
+
+  if (!available) {
+    return { success: false, error: 'Username is already taken' };
+  }
+
   const { data, error } = await supabase
     .from('players')
     .update({ name })
@@ -100,8 +125,8 @@ export async function updatePlayerName(
 
   if (error) {
     console.error('Error updating player name:', error);
-    return null;
+    return { success: false, error: 'Failed to update name' };
   }
 
-  return data as Player;
+  return { success: true, player: data as Player };
 }

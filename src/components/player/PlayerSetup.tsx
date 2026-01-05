@@ -44,15 +44,15 @@ export function PlayerSetup() {
     setIsSaving(true);
     setError('');
 
-    const success = await updateName(trimmedName);
+    const result = await updateName(trimmedName);
 
-    if (success) {
+    if (result.success) {
       setIsEditing(false);
       if (isNewUser) {
         completeSetup();
       }
     } else {
-      setError('Failed to save name. Please try again.');
+      setError(result.error || 'Failed to save name. Please try again.');
     }
 
     setIsSaving(false);
