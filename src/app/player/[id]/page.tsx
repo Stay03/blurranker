@@ -156,10 +156,10 @@ export default function PlayerProfilePage({ params }: PageProps) {
               >
                 {stats.playerName.charAt(0).toUpperCase()}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 {isEditing ? (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <input
                         type="text"
                         value={editName}
@@ -167,7 +167,7 @@ export default function PlayerProfilePage({ params }: PageProps) {
                           setEditName(e.target.value);
                           setEditError('');
                         }}
-                        className="text-xl font-bold bg-background border border-input rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="flex-1 min-w-0 text-lg font-bold bg-background border border-input rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring"
                         maxLength={30}
                         autoFocus
                         disabled={isSaving}
@@ -177,7 +177,7 @@ export default function PlayerProfilePage({ params }: PageProps) {
                         variant="ghost"
                         onClick={handleSaveName}
                         disabled={isSaving}
-                        className="h-8 w-8"
+                        className="h-8 w-8 shrink-0"
                       >
                         {isSaving ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -190,7 +190,7 @@ export default function PlayerProfilePage({ params }: PageProps) {
                         variant="ghost"
                         onClick={handleCancelEdit}
                         disabled={isSaving}
-                        className="h-8 w-8"
+                        className="h-8 w-8 shrink-0"
                       >
                         <X className="h-4 w-4 text-red-600" />
                       </Button>
